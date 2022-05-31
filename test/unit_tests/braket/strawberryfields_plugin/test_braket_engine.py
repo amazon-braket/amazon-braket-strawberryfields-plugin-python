@@ -16,7 +16,9 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 import strawberryfields as sf
+from braket.aws import AwsQuantumTask
 from braket.device_schema.xanadu import XanaduDeviceCapabilities
+from braket.ir.blackbird import Program
 from strawberryfields import ops
 from strawberryfields.tdm import borealis_gbs, get_mode_indices
 
@@ -79,35 +81,67 @@ def test_device(braket_engine, sf_device):
     assert actual.certificate == sf_device.certificate
 
 
-def test_program_not_compiled(braket_engine, shots):
+def test_program_not_compiled(braket_engine, shots, s3_destination_folder):
     device = braket_engine.device
     program = create_program(device)
     assert braket_engine.run_async(program, shots=shots).target == device.target
     assert braket_engine.aws_device.run.call_count == 1
+    bb = sf.io.to_blackbird(program.compile(device=device))
+    bb._target["options"] = {"shots": shots}
+    braket_engine.aws_device.run.assert_called_with(
+        Program(source=bb.serialize()),
+        s3_destination_folder=s3_destination_folder,
+        shots=shots,
+        poll_timeout_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_TIMEOUT,
+        poll_interval_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_INTERVAL,
+    )
 
 
-def test_recompile(braket_engine, shots):
+def test_recompile(braket_engine, shots, s3_destination_folder):
     device = braket_engine.device
     program = create_program(device)
     compiled = program.compile(device=device, shots=shots)
     assert braket_engine.run_async(compiled, recompile=True).target == device.target
     assert braket_engine.aws_device.run.call_count == 1
+    braket_engine.aws_device.run.assert_called_with(
+        Program(source=sf.io.to_blackbird(compiled.compile(device=device)).serialize()),
+        s3_destination_folder=s3_destination_folder,
+        shots=shots,
+        poll_timeout_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_TIMEOUT,
+        poll_interval_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_INTERVAL,
+    )
 
 
-def test_compiled_same_device(braket_engine, shots):
+def test_compiled_same_device(braket_engine, shots, s3_destination_folder):
     device = braket_engine.device
     program = create_program(device)
     compiled = program.compile(device=device, shots=shots)
     assert braket_engine.run_async(compiled).target == device.target
     assert braket_engine.aws_device.run.call_count == 1
+    braket_engine.aws_device.run.assert_called_with(
+        Program(source=sf.io.to_blackbird(compiled).serialize()),
+        s3_destination_folder=s3_destination_folder,
+        shots=shots,
+        poll_timeout_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_TIMEOUT,
+        poll_interval_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_INTERVAL,
+    )
 
 
-def test_run(braket_engine, shots, result):
+def test_run(braket_engine, shots, result, s3_destination_folder):
     device = braket_engine.device
     program = create_program(device)
     braket_engine.aws_device.run.return_value.result.return_value = result
     assert np.allclose(braket_engine.run(program, shots=shots).samples, result.measurements[0])
     assert braket_engine.aws_device.run.call_count == 1
+    bb = sf.io.to_blackbird(program.compile(device=device))
+    bb._target["options"] = {"shots": shots}
+    braket_engine.aws_device.run.assert_called_with(
+        Program(source=bb.serialize()),
+        s3_destination_folder=s3_destination_folder,
+        shots=shots,
+        poll_timeout_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_TIMEOUT,
+        poll_interval_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_INTERVAL,
+    )
 
 
 @pytest.mark.xfail(raises=ValueError)

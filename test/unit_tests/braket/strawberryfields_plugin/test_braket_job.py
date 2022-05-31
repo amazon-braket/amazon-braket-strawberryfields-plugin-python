@@ -96,3 +96,4 @@ def test_cancel(braket_job):
     assert braket_job.task.cancel.call_count == 0  # Sanity
     braket_job.cancel()
     assert braket_job.task.cancel.call_count == 1
+    braket_job.task.cancel.assert_called_with()
