@@ -84,7 +84,7 @@ def test_device(braket_engine, sf_device):
 def test_program_not_compiled(braket_engine, shots, s3_destination_folder):
     device = braket_engine.device
     program = create_program(device)
-    assert braket_engine.run_async(program, shots=shots).target == device.target
+    assert braket_engine.run_async(program, shots=shots, crop=True).target == device.target
     assert braket_engine.aws_device.run.call_count == 1
     bb = sf.io.to_blackbird(program.compile(device=device))
     bb._target["options"] = {"shots": shots}

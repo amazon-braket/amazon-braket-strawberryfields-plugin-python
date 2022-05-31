@@ -144,7 +144,11 @@ class BraketEngine:
             BraketJob: The created Braket job
         """
         # Update the run options if provided
-        run_options = {**program.run_options, **kwargs}
+        temp_run_options = {**program.run_options, **kwargs}
+        skip_run_keys = ["crop"]
+        run_options = {
+            key: temp_run_options[key] for key in temp_run_options.keys() - skip_run_keys
+        }
         if "shots" not in run_options:
             raise ValueError("Number of shots must be specified.")
         bb = BraketEngine._compile(program, compile_options, recompile, self._device)
