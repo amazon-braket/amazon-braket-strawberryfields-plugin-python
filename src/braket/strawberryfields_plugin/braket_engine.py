@@ -16,6 +16,7 @@ from typing import Optional
 import strawberryfields as sf
 from blackbird import BlackbirdProgram
 from braket.aws import AwsDevice, AwsQuantumTask, AwsSession
+from braket.device_schema import DeviceActionType
 from braket.device_schema.xanadu import XanaduDeviceCapabilities
 from braket.ir.blackbird import Program
 
@@ -54,6 +55,9 @@ class BraketEngine:
     ) -> None:
         aws_device = AwsDevice(device_arn, aws_session=aws_session)
         capabilities: XanaduDeviceCapabilities = aws_device.properties
+        if DeviceActionType.BLACKBIRD not in capabilities.action:
+            raise ValueError(f"Device {aws_device.name} does not support photonic circuits")
+
         paradigm = capabilities.paradigm
         target = paradigm.target
         spec = {

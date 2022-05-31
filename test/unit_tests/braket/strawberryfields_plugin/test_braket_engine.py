@@ -145,6 +145,72 @@ def test_run(braket_engine, shots, result, s3_destination_folder):
 
 
 @pytest.mark.xfail(raises=ValueError)
+@patch("braket.strawberryfields_plugin.braket_engine.AwsDevice")
+def test_error_blackbird_not_supported(
+    mock_qpu,
+    device_arn,
+    s3_destination_folder,
+    service_properties,
+    paradigm_properties,
+    provider_properties,
+):
+    mock_qpu.return_value.properties = XanaduDeviceCapabilities.parse_obj(
+        {
+            "braketSchemaHeader": {
+                "name": "braket.device_schema.xanadu.xanadu_device_capabilities",
+                "version": "1",
+            },
+            "service": service_properties,
+            "action": {
+                "braket.ir.openqasm.program": {
+                    "actionType": "braket.ir.openqasm.program",
+                    "version": ["1"],
+                    "supportedOperations": ["BSGate", "XGate"],
+                    "supportedResultTypes": [
+                        "ccnot",
+                        "cnot",
+                        "cphaseshift",
+                        "cphaseshift00",
+                        "cphaseshift01",
+                        "cphaseshift10",
+                        "cswap",
+                        "cy",
+                        "cz",
+                        "h",
+                        "i",
+                        "iswap",
+                        "pswap",
+                        "phaseshift",
+                        "rx",
+                        "ry",
+                        "rz",
+                        "s",
+                        "si",
+                        "swap",
+                        "t",
+                        "ti",
+                        "v",
+                        "vi",
+                        "x",
+                        "xx",
+                        "xy",
+                        "y",
+                        "yy",
+                        "z",
+                        "zz",
+                    ],
+                }
+            },
+            "paradigm": paradigm_properties,
+            "provider": provider_properties,
+            "deviceParameters": {},
+        }
+    )
+    mock_qpu.return_value.run.return_value = Mock()
+    BraketEngine(device_arn, s3_destination_folder, Mock())
+
+
+@pytest.mark.xfail(raises=ValueError)
 def test_error_no_shots(braket_engine):
     program = create_program(braket_engine.device)
     braket_engine.run_async(program)
