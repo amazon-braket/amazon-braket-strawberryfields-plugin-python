@@ -129,9 +129,6 @@ To run the integration tests, set the ``AWS_PROFILE`` as explained in the amazon
     export AWS_PROFILE=Your_Profile_Name
 
 
-Running the integration tests creates an S3 bucket in the same account as the ``AWS_PROFILE``
-with the following naming convention ``amazon-braket-strawberryfields-plugin-integ-tests-{account_id}``.
-
 Run the integration tests with:
 
 .. code-block:: bash
