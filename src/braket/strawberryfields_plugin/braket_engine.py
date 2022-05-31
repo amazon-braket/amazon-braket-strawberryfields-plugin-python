@@ -71,7 +71,7 @@ class BraketEngine:
             "loop_phases": provider.loopPhases,
             "schmidt_number": provider.schmidtNumber,
             "common_efficiency": provider.commonEfficiency,
-            "squeezing_parameters": provider.squeezingParameters,
+            "loop_efficiencies": provider.loopEfficiencies,
             "squeezing_parameters_mean": provider.squeezingParametersMean,
             "relative_channel_efficiencies": provider.relativeChannelEfficiencies,
         }
@@ -172,9 +172,8 @@ class BraketEngine:
             program.compile_info[0].target == device.target
             and program.compile_info[0]._spec == device._spec
         ):
-            # Validate that program is correctly compiled
-            # TODO: Delete if this isn't allowed on Borealis
-            return sf.io.to_blackbird(program.compile(device=device, compiler="Xstrict"))
+            # Program is already compiled for this device
+            return sf.io.to_blackbird(program)
 
         # Program already compiled for different device but recompilation disallowed by the user
         program_device = program.compile_info[0]

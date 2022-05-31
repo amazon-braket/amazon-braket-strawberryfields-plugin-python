@@ -137,7 +137,6 @@ def provider_properties():
         "schmidtNumber": 1.149,
         "commonEfficiency": 0.472,
         "loopEfficiencies": [0.928, 0.885, 0.85],
-        "squeezingParameters": {"low": [0.534], "high": [1.12], "medium": [0.886]},
         "squeezingParametersMean": {
             "low": 0.534,
             "high": 1.12,
@@ -175,7 +174,7 @@ def sf_device(service_properties, paradigm_properties, provider_properties):
         "loop_phases": provider_properties["loopPhases"],
         "schmidt_number": provider_properties["schmidtNumber"],
         "common_efficiency": provider_properties["commonEfficiency"],
-        "squeezing_parameters": provider_properties["squeezingParameters"],
+        "loop_efficiencies": provider_properties["loopEfficiencies"],
         "squeezing_parameters_mean": provider_properties["squeezingParametersMean"],
         "relative_channel_efficiencies": provider_properties["relativeChannelEfficiencies"],
     }

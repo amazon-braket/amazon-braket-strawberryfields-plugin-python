@@ -94,13 +94,12 @@ def test_recompile(braket_engine, shots):
     assert braket_engine.aws_device.run.call_count == 1
 
 
-# TODO: Delete if this isn't allowed on Borealis, uncomment otherwise
-# def test_compiled_same_device(braket_engine, shots):
-#     device = braket_engine.device
-#     program = create_program(device)
-#     compiled = program.compile(device=device, shots=shots)
-#     asser braket_engine.run_async(compiled).target == device.target
-#     assert braket_engine.aws_device.run.call_count == 1
+def test_compiled_same_device(braket_engine, shots):
+    device = braket_engine.device
+    program = create_program(device)
+    compiled = program.compile(device=device, shots=shots)
+    assert braket_engine.run_async(compiled).target == device.target
+    assert braket_engine.aws_device.run.call_count == 1
 
 
 def test_run(braket_engine, shots, result):
