@@ -73,12 +73,13 @@ def test_incomplete():
     "braket_status, sf_status",
     [
         ("CREATED", "open"),
-        ("QUEUEING", "queued"),
+        ("QUEUEING", "open"),
         ("QUEUED", "queued"),
-        ("CANCELLED", "cancelled"),
+        ("RUNNING", "running"),
+        ("COMPLETED", "complete"),
         ("FAILED", "failed"),
         ("CANCELLING", "cancel_pending"),
-        ("COMPLETED", "complete"),
+        ("CANCELLED", "cancelled"),
     ],
 )
 def test_states(braket_status, sf_status):

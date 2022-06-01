@@ -47,8 +47,8 @@ This plugin provides the classes ``BraketEngine`` for submitting photonic circui
     from braket.strawberryfields_plugin import BraketEngine
 
     eng = BraketEngine("arn:aws:braket:us-east-1::device/qpu/xanadu/Borealis")
-    result = eng.run(prog, shots=250_000)  # Synchronous, returns sf.Result
-    job = eng.run_async(prog, shots=250_000)  # Asychronous, returns BraketJob
+    result = eng.run(prog, shots=1000)  # Synchronous, returns sf.Result
+    job = eng.run_async(prog, shots=1000)  # Asychronous, returns BraketJob
     print(job.status)
 
 

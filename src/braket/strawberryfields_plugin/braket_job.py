@@ -21,12 +21,13 @@ from braket.tasks import PhotonicModelQuantumTaskResult
 
 _STATE_MAP = {
     "CREATED": "open",
-    "QUEUEING": "queued",
+    "QUEUEING": "open",
     "QUEUED": "queued",
-    "CANCELLED": "cancelled",
+    "RUNNING": "running",
+    "COMPLETED": "complete",
     "FAILED": "failed",
     "CANCELLING": "cancel_pending",
-    "COMPLETED": "complete",
+    "CANCELLED": "cancelled",
 }
 _TERMINAL_STATES = frozenset({"COMPLETED", "FAILED", "CANCELLED"})
 
@@ -91,7 +92,7 @@ class BraketJob:
     def finished_at(self) -> Optional[datetime]:
         """Optional[datetime]: The time at which the job completed.
 
-        Returns None if the jab is not completed yet.
+        Returns None if the job is not completed yet.
         """
         return self._task.metadata().get("endedAt")
 
