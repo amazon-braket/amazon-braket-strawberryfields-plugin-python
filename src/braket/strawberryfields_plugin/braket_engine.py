@@ -100,13 +100,12 @@ class BraketEngine:
     def run(
         self, program: sf.Program, *, compile_options=None, recompile=False, **kwargs
     ) -> Optional[sf.Result]:
-        """Runs a blocking job.
+        """Runs a quantum task to completion and returns its result.
 
-        In the blocking mode, the engine blocks until the job is completed, failed, or
-        cancelled. A job in progress can be cancelled with a keyboard interrupt (`ctrl+c`).
+        This is a blocking call that waits until the Braket quantum task is complete.
 
-        If the job completes successfully, the result is returned; if the job
-        fails or is cancelled, ``None`` is returned.
+        If the job completes successfully, the result is returned;
+        if the job fails or is cancelled, ``None`` is returned.
 
         Args:
             program (strawberryfields.Program): the quantum circuit
@@ -121,18 +120,18 @@ class BraketEngine:
         Returns:
             Optional[sf.Result]: The job result if successful, and ``None`` otherwise
         """
-        job = self.run_async(
+        result = self.run_async(
             program, compile_options=compile_options, recompile=recompile, **kwargs
-        )
-        return sf.Result(job.result)
+        ).result
+        return sf.Result(result) if result else None
 
     def run_async(
         self, program: sf.Program, *, compile_options=None, recompile=False, **kwargs
     ) -> BraketJob:
-        """Runs a non-blocking remote job.
+        """Runs a Braket quantum task and returns a ``BraketJob` wrapping the task.
 
-        In the non-blocking mode, a ``xcc.Job`` object is returned immediately, and the user can
-        manually refresh the status and check for updated results of the job.
+        The user can check the status of the job or retrieve results,
+        the latter of which is a blocking call.
 
         Args:
             program (strawberryfields.Program): the quantum circuit

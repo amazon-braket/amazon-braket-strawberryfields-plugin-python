@@ -124,14 +124,14 @@ class BraketJob:
         return self._task.metadata()
 
     @property
-    def result(self) -> Mapping[str, Union[np.ndarray, List[np.ndarray]]]:
-        """Mapping[str, Union[np.ndarray, List[np.ndarray]]]: The result of the job.
+    def result(self) -> Optional[Mapping[str, Union[np.ndarray, List[np.ndarray]]]]:
+        """Optional[Mapping[str, Union[np.ndarray, List[np.ndarray]]]]: The result of the job.
 
         The dict has an "output" key associated with a list of NumPy arrays representing
-        the output of the job.
+        the output of the job. Returns ``None`` if the job failed or timed out.
         """
         task_result: PhotonicModelQuantumTaskResult = self._task.result()
-        return {"output": [task_result.measurements]}
+        return {"output": [task_result.measurements]} if task_result else None
 
     def cancel(self) -> None:
         """Cancel the underlying Braket task."""

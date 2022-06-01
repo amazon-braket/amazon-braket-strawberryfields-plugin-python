@@ -92,6 +92,12 @@ def test_result(braket_job, result):
     assert braket_job.circuit == result.additional_metadata.xanaduMetadata.compiledProgram
 
 
+def test_result_none(sf_device):
+    task_mock = Mock()
+    task_mock.result.return_value = None
+    assert BraketJob(task_mock, sf_device).result is None
+
+
 def test_cancel(braket_job):
     assert braket_job.task.cancel.call_count == 0  # Sanity
     braket_job.cancel()

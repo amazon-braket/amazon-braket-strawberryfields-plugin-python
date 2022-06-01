@@ -145,6 +145,23 @@ def test_run(braket_engine, shots, result, s3_destination_folder):
     )
 
 
+def test_run_no_result(braket_engine, shots, s3_destination_folder):
+    device = braket_engine.device
+    program = create_program(device)
+    braket_engine.aws_device.run.return_value.result.return_value = None
+    assert braket_engine.run(program, shots=shots) is None
+    assert braket_engine.aws_device.run.call_count == 1
+    bb = sf.io.to_blackbird(program.compile(device=device))
+    bb._target["options"] = {"shots": shots}
+    braket_engine.aws_device.run.assert_called_with(
+        Program(source=bb.serialize()),
+        s3_destination_folder=s3_destination_folder,
+        shots=shots,
+        poll_timeout_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_TIMEOUT,
+        poll_interval_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_INTERVAL,
+    )
+
+
 @pytest.mark.xfail(raises=ValueError)
 @patch("braket.strawberryfields_plugin.braket_engine.AwsDevice")
 def test_error_blackbird_not_supported(mock_qpu, device_arn, s3_destination_folder):
