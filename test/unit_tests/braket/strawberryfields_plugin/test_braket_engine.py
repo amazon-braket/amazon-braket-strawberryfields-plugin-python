@@ -20,7 +20,7 @@ from braket.aws import AwsQuantumTask
 from braket.device_schema.simulators import GateModelSimulatorDeviceCapabilities
 from braket.device_schema.xanadu import XanaduDeviceCapabilities
 from braket.ir.blackbird import Program
-from strawberryfields import ops
+from strawberryfields import TDMProgram, ops
 from strawberryfields.tdm import borealis_gbs, get_mode_indices
 
 from braket.strawberryfields_plugin import BraketEngine
@@ -136,7 +136,34 @@ def test_run(braket_engine, shots, result, s3_destination_folder):
     device = braket_engine.device
     program = create_program(device)
     braket_engine.aws_device.run.return_value.result.return_value = result
-    assert np.allclose(braket_engine.run(program, shots=shots).samples, result.measurements[0])
+    samples = braket_engine.run(program, shots=shots).samples
+    measurements = result.measurements
+    assert samples.shape == measurements.shape
+    assert np.allclose(samples, measurements)
+    assert braket_engine.aws_device.refresh_metadata.call_count == 2
+    assert braket_engine.aws_device.run.call_count == 1
+    bb = sf.io.to_blackbird(program.compile(device=device))
+    bb._target["options"] = {"shots": shots}
+    braket_engine.aws_device.run.assert_called_with(
+        Program(source=bb.serialize()),
+        s3_destination_folder=s3_destination_folder,
+        shots=shots,
+        poll_timeout_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_TIMEOUT,
+        poll_interval_seconds=AwsQuantumTask.DEFAULT_RESULTS_POLL_INTERVAL,
+    )
+
+
+@patch.object(TDMProgram, "get_crop_value")
+def test_run_crop(mock_crop, braket_engine, shots, result, s3_destination_folder):
+    mock_crop.return_value = 1
+    device = braket_engine.device
+    program = create_program(device)
+    braket_engine.aws_device.run.return_value.result.return_value = result
+
+    samples = braket_engine.run(program, shots=shots, crop=True).samples
+    measurements = result.measurements[:, :, program.get_crop_value() :]
+    assert samples.shape == measurements.shape
+    assert np.allclose(samples, measurements)
     assert braket_engine.aws_device.refresh_metadata.call_count == 2
     assert braket_engine.aws_device.run.call_count == 1
     bb = sf.io.to_blackbird(program.compile(device=device))

@@ -19,6 +19,7 @@ from braket.aws import AwsDevice, AwsQuantumTask, AwsSession
 from braket.device_schema import DeviceActionType
 from braket.device_schema.xanadu import XanaduDeviceCapabilities
 from braket.ir.blackbird import Program
+from strawberryfields import TDMProgram
 
 from braket.strawberryfields_plugin.braket_job import BraketJob
 
@@ -109,12 +110,18 @@ class BraketEngine:
         result = self.run_async(
             program, compile_options=compile_options, recompile=recompile, **kwargs
         ).result
-        return sf.Result(result) if result else None
+        if not result:
+            return None
+        output = result.get("output")
+        # crop vacuum modes arriving at the detector before the first computational mode
+        if output and isinstance(program, TDMProgram) and kwargs.get("crop", False):
+            output[0] = output[0][:, :, program.get_crop_value() :]
+        return sf.Result(result)
 
     def run_async(
         self, program: sf.Program, *, compile_options=None, recompile=False, **kwargs
     ) -> BraketJob:
-        """Runs a Braket quantum task and returns a ``BraketJob` wrapping the task.
+        """Creates a Braket quantum task and returns a ``BraketJob` wrapping the task.
 
         The user can check the status of the job or retrieve results,
         the latter of which is a blocking call.
