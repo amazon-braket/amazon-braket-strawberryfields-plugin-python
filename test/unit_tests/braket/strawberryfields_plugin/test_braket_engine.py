@@ -80,12 +80,14 @@ def test_device(braket_engine, sf_device):
     assert actual.layout == sf_device.layout
     assert actual.gate_parameters == sf_device.gate_parameters
     assert actual.certificate == sf_device.certificate
+    assert braket_engine.aws_device.refresh_metadata.call_count == 1
 
 
 def test_program_not_compiled(braket_engine, shots, s3_destination_folder):
     device = braket_engine.device
     program = create_program(device)
     assert braket_engine.run_async(program, shots=shots, crop=True).target == device.target
+    assert braket_engine.aws_device.refresh_metadata.call_count == 2
     assert braket_engine.aws_device.run.call_count == 1
     bb = sf.io.to_blackbird(program.compile(device=device))
     bb._target["options"] = {"shots": shots}
@@ -103,6 +105,7 @@ def test_recompile(braket_engine, shots, s3_destination_folder):
     program = create_program(device)
     compiled = program.compile(device=device, shots=shots)
     assert braket_engine.run_async(compiled, recompile=True).target == device.target
+    assert braket_engine.aws_device.refresh_metadata.call_count == 2
     assert braket_engine.aws_device.run.call_count == 1
     braket_engine.aws_device.run.assert_called_with(
         Program(source=sf.io.to_blackbird(compiled.compile(device=device)).serialize()),
@@ -118,6 +121,7 @@ def test_compiled_same_device(braket_engine, shots, s3_destination_folder):
     program = create_program(device)
     compiled = program.compile(device=device, shots=shots)
     assert braket_engine.run_async(compiled).target == device.target
+    assert braket_engine.aws_device.refresh_metadata.call_count == 2
     assert braket_engine.aws_device.run.call_count == 1
     braket_engine.aws_device.run.assert_called_with(
         Program(source=sf.io.to_blackbird(compiled).serialize()),
@@ -133,6 +137,7 @@ def test_run(braket_engine, shots, result, s3_destination_folder):
     program = create_program(device)
     braket_engine.aws_device.run.return_value.result.return_value = result
     assert np.allclose(braket_engine.run(program, shots=shots).samples, result.measurements[0])
+    assert braket_engine.aws_device.refresh_metadata.call_count == 2
     assert braket_engine.aws_device.run.call_count == 1
     bb = sf.io.to_blackbird(program.compile(device=device))
     bb._target["options"] = {"shots": shots}
@@ -150,6 +155,7 @@ def test_run_no_result(braket_engine, shots, s3_destination_folder):
     program = create_program(device)
     braket_engine.aws_device.run.return_value.result.return_value = None
     assert braket_engine.run(program, shots=shots) is None
+    assert braket_engine.aws_device.refresh_metadata.call_count == 2
     assert braket_engine.aws_device.run.call_count == 1
     bb = sf.io.to_blackbird(program.compile(device=device))
     bb._target["options"] = {"shots": shots}

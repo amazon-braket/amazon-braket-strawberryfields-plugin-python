@@ -58,44 +58,30 @@ class BraketEngine:
         if DeviceActionType.BLACKBIRD not in capabilities.action:
             raise ValueError(f"Device {aws_device.name} does not support photonic circuits")
 
-        paradigm = capabilities.paradigm
-        target = paradigm.target
-        spec = {
-            "target": target,
-            "layout": paradigm.layout,
-            "modes": {k: int(v) for k, v in paradigm.modes.items()},
-            "compiler": paradigm.compiler,
-            "gate_parameters": paradigm.gateParameters,
-        }
-        provider = capabilities.provider
-        finished_at = f"{capabilities.service.updatedAt.strftime(_SF_DATETIME_FORMAT)}+00:00"
-        cert = {
-            "finished_at": finished_at,
-            "target": target,
-            "loop_phases": provider.loopPhases,
-            "schmidt_number": provider.schmidtNumber,
-            "common_efficiency": provider.commonEfficiency,
-            "loop_efficiencies": provider.loopEfficiencies,
-            "squeezing_parameters_mean": provider.squeezingParametersMean,
-            "relative_channel_efficiencies": provider.relativeChannelEfficiencies,
-        }
-        self._device = sf.Device(spec, cert)
         self._aws_device = aws_device
+        self._target = capabilities.paradigm.target
         self._s3_folder = s3_destination_folder
         self._poll_timeout_seconds = poll_timeout_seconds
         self._poll_interval_seconds = poll_interval_seconds
 
     @property
-    def aws_device(self):
+    def aws_device(self) -> AwsDevice:
+        """AwsDevice: The underlying AwsDevice that makes calls to the Amazon Braket service."""
         return self._aws_device
 
     @property
     def target(self) -> str:
-        return self._device.target
+        """str: The name of the target device used by the engine."""
+        return self._target
 
     @property
     def device(self) -> sf.Device:
-        return self._device
+        """sf.Device: The representation of the target device.
+
+        This gets the latest calibration data from the Braket service.
+        """
+        self._aws_device.refresh_metadata()
+        return BraketEngine._new_device(self._aws_device)
 
     def run(
         self, program: sf.Program, *, compile_options=None, recompile=False, **kwargs
@@ -154,7 +140,8 @@ class BraketEngine:
         }
         if "shots" not in run_options:
             raise ValueError("Number of shots must be specified.")
-        bb = BraketEngine._compile(program, compile_options, recompile, self._device)
+        device = self.device
+        bb = BraketEngine._compile(program, compile_options, recompile, device)
         bb._target["options"] = run_options
         circuit = bb.serialize()
         task = self._aws_device.run(
@@ -164,7 +151,33 @@ class BraketEngine:
             poll_timeout_seconds=self._poll_timeout_seconds,
             poll_interval_seconds=self._poll_interval_seconds,
         )
-        return BraketJob(task, self._device)
+        return BraketJob(task, device)
+
+    @staticmethod
+    def _new_device(aws_device: AwsDevice) -> sf.Device:
+        capabilities: XanaduDeviceCapabilities = aws_device.properties
+        paradigm = capabilities.paradigm
+        target = paradigm.target
+        spec = {
+            "target": target,
+            "layout": paradigm.layout,
+            "modes": {k: int(v) for k, v in paradigm.modes.items()},
+            "compiler": paradigm.compiler,
+            "gate_parameters": paradigm.gateParameters,
+        }
+        provider = capabilities.provider
+        finished_at = f"{capabilities.service.updatedAt.strftime(_SF_DATETIME_FORMAT)}+00:00"
+        cert = {
+            "finished_at": finished_at,
+            "target": target,
+            "loop_phases": provider.loopPhases,
+            "schmidt_number": provider.schmidtNumber,
+            "common_efficiency": provider.commonEfficiency,
+            "loop_efficiencies": provider.loopEfficiencies,
+            "squeezing_parameters_mean": provider.squeezingParametersMean,
+            "relative_channel_efficiencies": provider.relativeChannelEfficiencies,
+        }
+        return sf.Device(spec, cert)
 
     @staticmethod
     def _compile(
