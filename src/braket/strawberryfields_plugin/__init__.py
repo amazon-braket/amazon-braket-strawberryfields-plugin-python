@@ -13,3 +13,5 @@
 
 from braket.strawberryfields_plugin.braket_engine import BraketEngine  # noqa: F401
 from braket.strawberryfields_plugin.braket_job import BraketJob  # noqa: F401
+
+from ._version import __version__  # noqa: F401

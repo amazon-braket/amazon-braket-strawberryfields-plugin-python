@@ -17,6 +17,7 @@ import numpy as np
 import pytest
 import strawberryfields as sf
 from braket.aws import AwsQuantumTask
+from braket.device_schema.simulators import GateModelSimulatorDeviceCapabilities
 from braket.device_schema.xanadu import XanaduDeviceCapabilities
 from braket.ir.blackbird import Program
 from strawberryfields import ops
@@ -146,67 +147,82 @@ def test_run(braket_engine, shots, result, s3_destination_folder):
 
 @pytest.mark.xfail(raises=ValueError)
 @patch("braket.strawberryfields_plugin.braket_engine.AwsDevice")
-def test_error_blackbird_not_supported(
-    mock_qpu,
-    device_arn,
-    s3_destination_folder,
-    service_properties,
-    paradigm_properties,
-    provider_properties,
-):
-    mock_qpu.return_value.properties = XanaduDeviceCapabilities.parse_obj(
-        {
+def test_error_blackbird_not_supported(mock_qpu, device_arn, s3_destination_folder):
+    capabilities = {
+        "braketSchemaHeader": {
+            "name": "braket.device_schema.simulators.gate_model_simulator_device_capabilities",
+            "version": "1",
+        },
+        "service": {
             "braketSchemaHeader": {
-                "name": "braket.device_schema.xanadu.xanadu_device_capabilities",
+                "name": "braket.device_schema.device_service_properties",
                 "version": "1",
             },
-            "service": service_properties,
-            "action": {
-                "braket.ir.openqasm.program": {
-                    "actionType": "braket.ir.openqasm.program",
-                    "version": ["1"],
-                    "supportedOperations": ["BSGate", "XGate"],
-                    "supportedResultTypes": [
-                        "ccnot",
-                        "cnot",
-                        "cphaseshift",
-                        "cphaseshift00",
-                        "cphaseshift01",
-                        "cphaseshift10",
-                        "cswap",
-                        "cy",
-                        "cz",
-                        "h",
-                        "i",
-                        "iswap",
-                        "pswap",
-                        "phaseshift",
-                        "rx",
-                        "ry",
-                        "rz",
-                        "s",
-                        "si",
-                        "swap",
-                        "t",
-                        "ti",
-                        "v",
-                        "vi",
-                        "x",
-                        "xx",
-                        "xy",
-                        "y",
-                        "yy",
-                        "z",
-                        "zz",
-                    ],
-                }
+            "executionWindows": [
+                {"executionDay": "Everyday", "windowStartHour": "11:00", "windowEndHour": "12:00"}
+            ],
+            "shotsRange": [1, 10],
+            "deviceCost": {"price": 0.25, "unit": "minute"},
+            "deviceDocumentation": {
+                "imageUrl": "image_url",
+                "summary": "Summary on the device",
+                "externalDocumentationUrl": "exter doc link",
             },
-            "paradigm": paradigm_properties,
-            "provider": provider_properties,
-            "deviceParameters": {},
-        }
-    )
-    mock_qpu.return_value.run.return_value = Mock()
+            "deviceLocation": "us-east-1",
+            "updatedAt": "2020-06-16T19:28:02.869136",
+        },
+        "action": {
+            "braket.ir.jaqcd.program": {
+                "actionType": "braket.ir.jaqcd.program",
+                "version": ["1"],
+                "supportedOperations": ["x", "y"],
+                "supportedResultTypes": [
+                    {
+                        "name": "resultType1",
+                        "observables": ["observable1"],
+                        "minShots": 2,
+                        "maxShots": 4,
+                    }
+                ],
+            },
+            "braket.ir.openqasm.program": {
+                "actionType": "braket.ir.openqasm.program",
+                "version": ["1"],
+                "supportedOperations": ["x", "y"],
+                "supportedResultTypes": [
+                    {
+                        "name": "resultType1",
+                        "observables": ["observable1"],
+                        "minShots": 2,
+                        "maxShots": 4,
+                    },
+                ],
+                "supportPhysicalQubits": False,
+                "supportedPragmas": ["braket_noise_bit_flip", "braket_unitary_matrix"],
+                "forbiddenPragmas": [],
+                "forbiddenArrayOperations": ["concatenation", "range", "slicing"],
+                "requireAllQubitsMeasurement": True,
+                "requireContiguousQubitIndices": False,
+                "supportsPartialVerbatimBox": True,
+                "supportsUnassignedMeasurements": True,
+            },
+        },
+        "paradigm": {
+            "braketSchemaHeader": {
+                "name": "braket.device_schema.simulators.gate_model_simulator_paradigm_properties",
+                "version": "1",
+            },
+            "qubitCount": 32,
+        },
+        "deviceParameters": {
+            "braketSchemaHeader": {
+                "name": "braket.device_schema.simulators.gate_model_simulator_device_parameters",
+                "version": "1",
+            },
+            "paradigmParameters": {},
+        },
+    }
+    mock_qpu.return_value.properties = GateModelSimulatorDeviceCapabilities.parse_obj(capabilities)
     BraketEngine(device_arn, s3_destination_folder, Mock())
 
 
