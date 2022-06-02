@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0.post0 (2022-06-02)
+
+### Testing and Release Infrastructure
+
+ * Add .readthedocs.yml
+
 ## v1.0.0 (2022-06-02)
 
 This is the public release of the Amazon Braket Strawberry Fields Plugin!
