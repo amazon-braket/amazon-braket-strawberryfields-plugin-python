@@ -23,6 +23,8 @@ from strawberryfields import TDMProgram
 
 from braket.strawberryfields_plugin.braket_job import BraketJob
 
+from ._version import __version__
+
 _SF_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
@@ -55,6 +57,8 @@ class BraketEngine:
         poll_interval_seconds: float = AwsQuantumTask.DEFAULT_RESULTS_POLL_INTERVAL,
     ) -> None:
         aws_device = AwsDevice(device_arn, aws_session=aws_session)
+        user_agent = f"BraketStrawberryfieldsPlugin/{__version__}"
+        aws_device.aws_session.add_braket_user_agent(user_agent)
         capabilities: XanaduDeviceCapabilities = aws_device.properties
         if DeviceActionType.BLACKBIRD not in capabilities.action:
             raise ValueError(f"Device {aws_device.name} does not support photonic circuits")

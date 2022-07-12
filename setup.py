@@ -27,7 +27,7 @@ setup(
     packages=find_namespace_packages(where="src", exclude=("test",)),
     package_dir={"": "src"},
     install_requires=[
-        "amazon-braket-sdk>=1.24.0",
+        "amazon-braket-sdk>=1.25.0",
         "strawberryfields>=0.23.0",
     ],
     extras_require={
