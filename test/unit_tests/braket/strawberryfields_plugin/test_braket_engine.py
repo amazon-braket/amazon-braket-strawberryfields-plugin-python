@@ -23,7 +23,7 @@ from braket.ir.blackbird import Program
 from strawberryfields import TDMProgram, ops
 from strawberryfields.tdm import borealis_gbs, get_mode_indices
 
-from braket.strawberryfields_plugin import BraketEngine
+from braket.strawberryfields_plugin import BraketEngine, __version__
 
 
 @pytest.fixture
@@ -49,6 +49,19 @@ def braket_engine(mock_qpu, device_capabilities, device_arn, s3_destination_fold
     mock_qpu.return_value.properties = device_capabilities
     mock_qpu.return_value.run.return_value = Mock()
     return BraketEngine(device_arn, s3_destination_folder, Mock())
+
+
+@patch("braket.strawberryfields_plugin.braket_engine.AwsDevice")
+def test_add_braket_user_agent_invoked(
+    aws_device_mock, device_capabilities, device_arn, s3_destination_folder
+):
+    aws_device_mock_instance = aws_device_mock.return_value
+    aws_device_mock_instance.properties = device_capabilities
+    BraketEngine(device_arn, s3_destination_folder, Mock())
+    expected_user_agent = f"BraketStrawberryfieldsPlugin/{__version__}"
+    aws_device_mock_instance.aws_session.add_braket_user_agent.assert_called_with(
+        expected_user_agent
+    )
 
 
 def create_program(device: sf.Device):
