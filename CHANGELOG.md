@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.1 (2022-07-12)
+
+### Bug Fixes and Other Changes
+
+ * Add user agent for Braket interactions
+
 ## v1.0.0.post0 (2022-06-02)
 
 ### Testing and Release Infrastructure
