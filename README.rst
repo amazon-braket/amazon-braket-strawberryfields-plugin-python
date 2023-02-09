@@ -7,7 +7,7 @@ Amazon Braket Strawberry Fields Plugin
 .. image:: https://img.shields.io/pypi/pyversions/amazon-braket-strawberryfields-plugin.svg
     :alt: Supported Python Versions
     :target: https://pypi.python.org/pypi/amazon-braket-strawberryfields-plugin
-.. image:: https://img.shields.io/github/workflow/status/aws/amazon-braket-strawberryfields-plugin-python/Python%20package/main?logo=github
+.. image:: https://img.shields.io/github/actions/workflow/status/aws/amazon-braket-strawberryfields-plugin-python/python-package.yml?branch=main&logo=github
     :alt: Build Status
     :target: https://github.com/aws/amazon-braket-strawberryfields-plugin-python/actions?query=workflow%3A%22Python+package%22
 .. image:: https://codecov.io/gh/aws/amazon-braket-strawberryfields-plugin-python/branch/main/graph/badge.svg?token=VPPM8BJKW4
