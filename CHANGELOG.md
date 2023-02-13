@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.3 (2023-02-13)
+
+### Bug Fixes and Other Changes
+
+ * update build workflow badge
+
 ## v1.0.2 (2023-02-09)
 
 ### Bug Fixes and Other Changes
