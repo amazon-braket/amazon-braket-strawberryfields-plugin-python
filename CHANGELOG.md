@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.3.post0 (2023-02-20)
+
+### Documentation Changes
+
+ * Remove Black badge
+
+### Testing and Release Infrastructure
+
+ * update github workflows for node12 retirement
+
 ## v1.0.3 (2023-02-13)
 
 ### Bug Fixes and Other Changes
