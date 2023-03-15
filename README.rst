@@ -187,6 +187,7 @@ Support
 
 - **Source Code:** https://github.com/aws/amazon-braket-strawberryfields-plugin-python
 - **Issue Tracker:** https://github.com/aws/amazon-braket-strawberryfields-plugin-python/issues
+- **General Questions:** https://quantumcomputing.stackexchange.com/questions/ask (add the tag amazon-braket)
 - **Strawberry Fields Forum:** https://discuss.strawberryfields.ai
 
 If you are having issues, please let us know by posting the issue on our Github issue tracker, or
