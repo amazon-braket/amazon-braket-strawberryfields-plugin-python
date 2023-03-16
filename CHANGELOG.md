@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.0.post0 (2023-03-16)
+
+### Documentation Changes
+
+ * Update README support information
+
 ## v1.1.0 (2023-03-03)
 
 ### Deprecations and Removals
