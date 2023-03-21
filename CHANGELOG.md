@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.0.post1 (2023-03-21)
+
+### Testing and Release Infrastructure
+
+ * add dependabot updates for GH actions
+
 ## v1.1.0.post0 (2023-03-16)
 
 ### Documentation Changes
