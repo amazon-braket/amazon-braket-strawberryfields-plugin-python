@@ -1,6 +1,8 @@
 Amazon Braket Strawberry Fields Plugin
 ######################################
 
+:warning: **As of 06/02/2023, Xanadu's Borealis device is no longer available on Amazon Braket. Therefore, information on this page may be outdated. Please visit the Xanadu Strawberry Fields page<https://www.xanadu.ai/products/strawberry-fields/>`__ for additional information.**
+
 .. image:: https://img.shields.io/pypi/v/amazon-braket-strawberryfields-plugin.svg
     :alt: Latest Version
     :target: https://pypi.python.org/pypi/amazon-braket-strawberryfields-plugin
